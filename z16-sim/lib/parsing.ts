@@ -1,6 +1,6 @@
 // utils/parseZ16.ts
 
-import { instructionFormat, signExtend } from "./utils";
+import { binToHex, instructionFormat, signExtend } from "./utils";
 
 const instructions: string[] = [];
 
@@ -49,15 +49,15 @@ export default function parseInstructionZ16(raw: string[]): string[] {
         const name = instructionFormat("I", imm7, funct3);
 
         if (!name) {
-          instructions.push(`UNKNOWN R (${instr})`);
+          instructions.push(`UNKNOWN I (${instr})`);
           continue;
         }
 
         // formatting
         if (["SLLI", "SRLI", "SRAI"].includes(name)) {
-          instructions.push(`${name} ${RD}, ${imm7.slice(3, 7)}`);
+          instructions.push(`${name} ${RD}, 0x${binToHex([imm7.slice(3, 7)])}`);
         } else {
-          instructions.push(`${name} ${RD}, ${imm7}`);
+          instructions.push(`${name} ${RD}, 0x${binToHex([imm7])}`);
         }
         continue;
       }
@@ -145,7 +145,7 @@ export default function parseInstructionZ16(raw: string[]): string[] {
           instructions.push(`UNKNOWN J (${instr})`);
           continue;
         }
-        instructions.push(`${name} ${RD}, ${immVal}`);
+        instructions.push(`${name} ${RD}, 0x${binToHex([immBits])}`);
         continue;
       }
       // ──────────── SYS-Type  ─────────────

@@ -48,6 +48,7 @@ export function instructionFormat(
         ([, fmt]) => fmt.funct3 === funct3
       );
       if (funct3 === "011") {
+        entry = [];
         entry[0] =
           imm7.slice(0, 3) === "001"
             ? "SLLI"
@@ -57,43 +58,50 @@ export function instructionFormat(
             ? "SRAI"
             : undefined;
       }
+      break;
     }
     case "B": {
       const [funct3] = args;
       entry = Object.entries(instructionFormatsByType.B).find(
         ([, fmt]) => fmt.funct3 === funct3
       );
+      break;
     }
     case "S": {
       const [funct3] = args;
       entry = Object.entries(instructionFormatsByType.S).find(
         ([, fmt]) => fmt.funct3 === funct3
       );
+      break;
     }
     case "L": {
       const [funct3] = args;
       entry = Object.entries(instructionFormatsByType.L).find(
         ([, fmt]) => fmt.funct3 === funct3
       );
+      break;
     }
     case "J": {
       const [f] = args;
       entry = Object.entries(instructionFormatsByType.J).find(
         ([, fmt]) => fmt.flag === f
       );
+      break;
     }
     case "U": {
       const [f] = args;
       entry = Object.entries(instructionFormatsByType.U).find(
         ([, fmt]) => fmt.flag === f
       );
+      break;
     }
     case "SYS": {
       const [funct3] = args;
       entry = Object.entries(instructionFormatsByType.SYS).find(
         ([, fmt]) => fmt.funct3 === funct3
       );
+      break;
     }
   }
-  return entry[0] ? entry[0] : undefined;
+  return entry && entry[0] ? entry[0] : undefined;
 }
