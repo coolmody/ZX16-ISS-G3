@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import instructionFormatsByType from "./z16-INST.json";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,15 +15,13 @@ export function signExtend(bin: string, width: number): number {
   const signBit = bin[0] === "1";
   return signBit ? unsigned - (1 << width) : unsigned;
 }
-
-export function binToHex(mem: string[]): string[] {
-  if (!mem || !mem.length) {
-    return [];
+export function binToHex(byte: string, reg: boolean = false): string {
+  if (!byte) {
+    return "";
   }
-  return mem.map((byte) => {
-    const hex = "0x" + parseInt(byte, 2).toString(16).padStart(2, "0");
-    return hex;
-  });
+  return reg
+    ? "x" + parseInt(byte, 2).toString(16)
+    : "0x" + parseInt(byte, 2).toString(16).padStart(2, "0").toUpperCase();
 }
 export function littleEndianParser(memory: string[]): string[] {
   const Instructions = memory
@@ -38,79 +35,38 @@ export function littleEndianParser(memory: string[]): string[] {
 
   return Instructions;
 }
-export function instructionFormat(
-  Type: string,
-  ...args: string[]
-): string | undefined {
-  let entry: any;
-  switch (Type) {
-    case "R": {
-      const [funct3, funct4] = args;
-      entry = Object.entries(instructionFormatsByType[Type]).find(
-        ([, fmt]) => fmt.funct3 === funct3 && fmt.funct4 === funct4
-      );
-      break;
-    }
-    case "I": {
-      const [imm7, funct3] = args;
-      entry = Object.entries(instructionFormatsByType.I).find(
-        ([, fmt]) => fmt.funct3 === funct3
-      );
-      if (funct3 === "011") {
-        entry = [];
-        entry[0] =
-          imm7.slice(0, 3) === "001"
-            ? "SLLI"
-            : imm7.slice(0, 3) === "010"
-            ? "SRLI"
-            : imm7.slice(0, 3) === "100"
-            ? "SRAI"
-            : undefined;
-      }
-      break;
-    }
-    case "B": {
-      const [funct3] = args;
-      entry = Object.entries(instructionFormatsByType.B).find(
-        ([, fmt]) => fmt.funct3 === funct3
-      );
-      break;
-    }
-    case "S": {
-      const [funct3] = args;
-      entry = Object.entries(instructionFormatsByType.S).find(
-        ([, fmt]) => fmt.funct3 === funct3
-      );
-      break;
-    }
-    case "L": {
-      const [funct3] = args;
-      entry = Object.entries(instructionFormatsByType.L).find(
-        ([, fmt]) => fmt.funct3 === funct3
-      );
-      break;
-    }
-    case "J": {
-      const [f] = args;
-      entry = Object.entries(instructionFormatsByType.J).find(
-        ([, fmt]) => fmt.flag === f
-      );
-      break;
-    }
-    case "U": {
-      const [f] = args;
-      entry = Object.entries(instructionFormatsByType.U).find(
-        ([, fmt]) => fmt.flag === f
-      );
-      break;
-    }
-    case "SYS": {
-      const [funct3] = args;
-      entry = Object.entries(instructionFormatsByType.SYS).find(
-        ([, fmt]) => fmt.funct3 === funct3
-      );
-      break;
-    }
+export function binaryToDecimal(binStr: string, signed = false): number {
+  // Validate
+  if (!/^[01]+$/.test(binStr)) {
+    throw new Error(`Invalid binary string: "${binStr}"`);
   }
-  return entry && entry[0] ? entry[0] : undefined;
+
+  const width = binStr.length;
+  const unsignedVal = parseInt(binStr, 2);
+
+  if (!signed) {
+    return unsignedVal;
+  }
+
+  // signed two's-complement:
+  // if highest bit is 0, it's positive; else subtract 2^width
+  const isNegative = binStr[0] === "1";
+  return isNegative ? unsignedVal - (1 << width) : unsignedVal;
+}
+export function decimalToBinary(num: number, width: number): string {
+  // signed two’s-complement
+  if (!Number.isInteger(num)) {
+    throw new Error("For signed mode, pass an integer.");
+  }
+  if (typeof width !== "number" || width < 1) {
+    throw new Error(
+      "You must specify a positive bit-width for signed conversion."
+    );
+  }
+  // mask to width bits
+  const mask = (1 << width) - 1;
+  // & mask handles negative wrap-around automatically
+  const twos = num & mask;
+  // pad to exactly width bits
+  return twos.toString(2).padStart(width, "0");
 }

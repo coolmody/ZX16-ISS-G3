@@ -1,19 +1,20 @@
 "use client";
-import parseInstructionZ16 from "@/lib/parsing";
-import { cn, littleEndianParser } from "@/lib/utils";
 import instructionFormatsByType from "@/lib/z16-INST.json";
 import { loader, Monaco } from "@monaco-editor/react";
 import dynamic from "next/dynamic";
-import { useState } from "react";
-import TextUpload from "./TextUpload";
-// point the loader at your static files
+import { useEffect, useRef } from "react";
 loader.config({ paths: { vs: "/monaco/vs" } });
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
 });
 
-export default function codeWindow({ className }: { className?: string }) {
+export default function codeWindow({
+  Instructions,
+}: {
+  Instructions: string[];
+}) {
+  const editorRef = useRef<ReturnType<Monaco["editor"]["create"]> | null>(null);
   function handleEditorDidMount(editor: any, monaco: Monaco) {
     // 1️⃣ Flatten all mnemonics from the JSON
     const mnemonics = Object.values(instructionFormatsByType).flatMap((group) =>
@@ -82,40 +83,35 @@ export default function codeWindow({ className }: { className?: string }) {
     monaco.editor.setTheme("asmTheme");
     monaco.editor.setModelLanguage(editor.getModel()!, "asm");
   }
-  const [memory, setMemory] = useState<string[]>([]);
-  const interruptVector = memory.slice(0, 31);
-  const programCode = memory.slice(32, 61439);
-  const MMIO = memory.slice(61440, 65535);
-  const Instructions = parseInstructionZ16(programCode);
+
+  useEffect(() => {
+    if (editorRef.current && Instructions.length > 0)
+      editorRef.current.setValue(Instructions.join("\n"));
+  }, [Instructions]);
 
   return (
-    <div className={cn(className)}>
-      <div className="w-full h-100 mx-auto">
-        <MonacoEditor
-          className="h-full"
-          theme="vs-dark"
-          defaultLanguage="asm"
-          value={Instructions.join("\n")}
-          onMount={handleEditorDidMount}
-          options={{
-            readOnly: true, // ← disables all typing
-            minimap: { enabled: false },
-            contextmenu: false, // optional: disable right-click menu
-            lineNumbers: "on",
-            glyphMargin: false,
-            folding: false,
-            overviewRulerLanes: 0,
-            overviewRulerBorder: false,
-            // disable occurrence/selection highlights (which also draw in the ruler)
-            occurrencesHighlight: "off",
-            selectionHighlight: false,
-            fontSize: 24,
-          }}
-        />
-      </div>
-      <div className="p-4 mx-auto flex justify-end">
-        <TextUpload onFileRead={setMemory} />
-      </div>
+    <div className="w-full h-100 mx-auto shadow-lg rounded-lg bg-gray-800">
+      <MonacoEditor
+        className="h-full"
+        theme="vs-dark"
+        defaultLanguage="asm"
+        value={Instructions.join("\n")}
+        onMount={handleEditorDidMount}
+        options={{
+          readOnly: true, // ← disables all typing
+          minimap: { enabled: false },
+          contextmenu: false, // optional: disable right-click menu
+          lineNumbers: "on",
+          glyphMargin: false,
+          folding: false,
+          overviewRulerLanes: 0,
+          overviewRulerBorder: false,
+          // disable occurrence/selection highlights (which also draw in the ruler)
+          occurrencesHighlight: "off",
+          selectionHighlight: false,
+          fontSize: 24,
+        }}
+      />
     </div>
   );
 }

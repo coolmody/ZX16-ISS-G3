@@ -1,11 +1,19 @@
-import { binToHex, signExtend } from "@/lib/utils";
-import CodeWindow from "./_components/codewindow";
-import Screen from "./_components/screen";
+import Image from "next/image";
+import Computer from "./_components/computer";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-row items-center w-full justify-evenly bg-gray-900 text-white p-12">
-      <CodeWindow className="flex-2/3" />
-      <Screen className="flex-1/3 " />
+    <main className="flex min-h-screen flex-col items-center w-full justify-evenly bg-neutral-950 text-white px-12">
+      <Image
+        src="/logo.svg"
+        alt=""
+        width={1000}
+        height={10}
+        className="bg-transparent"
+      />
+      <div className="flex flex-row items-center justify-center w-full ">
+        <Computer />
+      </div>
     </main>
   );
 }
