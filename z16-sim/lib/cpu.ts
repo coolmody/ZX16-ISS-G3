@@ -350,6 +350,13 @@ export class cpu {
         //const rd = binaryToDecimal(instruction[1], false);
         //const imm = binaryToDecimal(instruction[2], false);
         //const x=0
+        //while (x != imm){
+        //  this.registers[rd] = decimalToBinary(
+        //    binaryToDecimal(this.registers[rd], true) >> 1,
+        //    16
+        //  );
+        //  x++;
+        //}
       }
       case "ORI": {
         // ORI rd, imm = rd = rd | imm
@@ -393,6 +400,7 @@ export class cpu {
         break;
       }
       case "J": {
+        /// ASK why is this imm/2 instead of imm
         // J jump to address
         // J imm = PC = imm/2
         const imm = binaryToDecimal(instruction[1], true);
@@ -418,12 +426,22 @@ export class cpu {
         break;
       case 2: // Read integer
         // Implement read integer logic here
+        //attempt1
+        //const input = prompt("Enter an integer: ");
+        //this.registers[0] = decimalToBinary(parseInt(input || "0"), 16);
         break;
       case 3: // Print string
         // Implement print string logic here
+        //atempt1
+        //const str = this.registers[0]; 
+        //console.log(str); // Assuming str is a string in the register
         break;
       case 4: // Read string
+      //
       // Implement read string logic here
+      //attempt1
+      //const input = prompt("Enter a string: ");
+      //this.registers[0] = decimalToBinary(parseInt(input || "0"), 16);
       case 10:
         this.halted = true; // Set halted to true to stop execution
         break;
