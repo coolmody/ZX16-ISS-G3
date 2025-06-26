@@ -1,6 +1,11 @@
 // utils/parseZ16.ts
 
-import { binToHex, instructionFormat, signExtend } from "./utils";
+import {
+  binToHex,
+  instructionFormat,
+  littleEndianParser,
+  signExtend,
+} from "./utils";
 
 const instructions: string[] = [];
 
@@ -16,6 +21,7 @@ const regMap: Record<string, string> = {
 };
 
 export default function parseInstructionZ16(raw: string[]): string[] {
+  raw = littleEndianParser(raw);
   for (let i = 0; i < raw.length; i++) {
     const instr = raw[i];
     const opcode = instr.slice(13, 16); // bits[15:13] is opcode
@@ -35,8 +41,7 @@ export default function parseInstructionZ16(raw: string[]): string[] {
         }
         // MV: dest=RD, src=RS2
         // JR/JALR: only uses RD as target
-        if (name === "JR" || name === "JALR")
-          instructions.push(`${name} ${RD}`);
+        if (name === "JR") instructions.push(`${name} ${RD}`);
         else instructions.push(`${name} ${RD}, ${RS2}`);
 
         continue;
@@ -55,9 +60,9 @@ export default function parseInstructionZ16(raw: string[]): string[] {
 
         // formatting
         if (["SLLI", "SRLI", "SRAI"].includes(name)) {
-          instructions.push(`${name} ${RD}, 0x${binToHex([imm7.slice(3, 7)])}`);
+          instructions.push(`${name} ${RD}, ${binToHex([imm7.slice(3, 7)])}`);
         } else {
-          instructions.push(`${name} ${RD}, 0x${binToHex([imm7])}`);
+          instructions.push(`${name} ${RD}, ${binToHex([imm7])}`);
         }
         continue;
       }
@@ -93,7 +98,7 @@ export default function parseInstructionZ16(raw: string[]): string[] {
           instructions.push(`UNKNOWN B (${instr})`);
           continue;
         }
-        instructions.push(`${name} ${RS2}, ${offset}(${RS1})`);
+        instructions.push(`${name} ${RS1}, ${offset}(${RS2})`);
         continue;
       }
 
@@ -145,7 +150,7 @@ export default function parseInstructionZ16(raw: string[]): string[] {
           instructions.push(`UNKNOWN J (${instr})`);
           continue;
         }
-        instructions.push(`${name} ${RD}, 0x${binToHex([immBits])}`);
+        instructions.push(`${name} ${RD}, ${binToHex([immBits])}`);
         continue;
       }
       // ──────────── SYS-Type  ─────────────

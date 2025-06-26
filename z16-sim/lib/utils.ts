@@ -1,23 +1,32 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import instructionFormatsByType from "./z16-INST.json";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 export function signExtend(bin: string, width: number): number {
-  const v = parseInt(bin, 2);
-  return bin[0] === "1" ? v - (1 << width) : v;
+  // Ensure the binary string is exactly 'width' bits
+  if (bin.length < width) {
+    bin = bin.padStart(width, bin[0]); // pad with sign bit
+  } else if (bin.length > width) {
+    bin = bin.slice(-width); // truncate to the least significant bits
+  }
+  const unsigned = parseInt(bin, 2);
+  const signBit = bin[0] === "1";
+  return signBit ? unsigned - (1 << width) : unsigned;
 }
+
 export function binToHex(mem: string[]): string[] {
   if (!mem || !mem.length) {
     return [];
   }
   return mem.map((byte) => {
-    const hex = parseInt(byte, 2).toString(16).padStart(2, "0");
+    const hex = "0x" + parseInt(byte, 2).toString(16).padStart(2, "0");
     return hex;
   });
 }
-export function memoryToWords(memory: string[]): string[] {
+export function littleEndianParser(memory: string[]): string[] {
   const Instructions = memory
     .map((_, index, array) => {
       if (index % 2 === 0 && array[index + 1]) {

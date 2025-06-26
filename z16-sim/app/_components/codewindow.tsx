@@ -1,6 +1,6 @@
 "use client";
 import parseInstructionZ16 from "@/lib/parsing";
-import { memoryToWords } from "@/lib/utils";
+import { cn, littleEndianParser } from "@/lib/utils";
 import instructionFormatsByType from "@/lib/z16-INST.json";
 import { loader, Monaco } from "@monaco-editor/react";
 import dynamic from "next/dynamic";
@@ -13,7 +13,7 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
 });
 
-export default function codeWindow() {
+export default function codeWindow({ className }: { className?: string }) {
   function handleEditorDidMount(editor: any, monaco: Monaco) {
     // 1️⃣ Flatten all mnemonics from the JSON
     const mnemonics = Object.values(instructionFormatsByType).flatMap((group) =>
@@ -83,20 +83,14 @@ export default function codeWindow() {
     monaco.editor.setModelLanguage(editor.getModel()!, "asm");
   }
   const [memory, setMemory] = useState<string[]>([]);
-
-  const memoryByWords = memoryToWords(memory.slice(0, 250));
-  console.log("Memory by words:", memoryByWords);
-  const Instructions = parseInstructionZ16(memoryByWords);
-  console.log("Memory by inst:", Instructions);
+  const interruptVector = memory.slice(0, 31);
+  const programCode = memory.slice(32, 61439);
+  const MMIO = memory.slice(61440, 65535);
+  const Instructions = parseInstructionZ16(programCode);
 
   return (
-    <>
-      <div className="p-4 mx-auto flex justify-center">
-        <TextUpload onFileRead={setMemory} />
-      </div>
-      <div className="w-4/5 h-100 mx-auto">
-        {/* <HighlightedText content={Instructions.join("\n")} className="h-full" />
-         */}
+    <div className={cn(className)}>
+      <div className="w-full h-100 mx-auto">
         <MonacoEditor
           className="h-full"
           theme="vs-dark"
@@ -119,6 +113,9 @@ export default function codeWindow() {
           }}
         />
       </div>
-    </>
+      <div className="p-4 mx-auto flex justify-end">
+        <TextUpload onFileRead={setMemory} />
+      </div>
+    </div>
   );
 }

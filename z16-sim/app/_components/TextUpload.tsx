@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { binToHex } from "@/lib/utils";
 type Props = {
   onFileRead: (data: string[]) => void; // can also use `string` if joined
 };
@@ -9,9 +8,7 @@ export default function TextUpload({ onFileRead }: Props) {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
-
     reader.onload = (e) => {
       const buffer = e.target?.result as ArrayBuffer;
       const bytes = new Uint8Array(buffer);
@@ -21,7 +18,6 @@ export default function TextUpload({ onFileRead }: Props) {
       );
       onFileRead(binaryStr);
     };
-
     reader.readAsArrayBuffer(file);
   };
 
@@ -32,7 +28,7 @@ export default function TextUpload({ onFileRead }: Props) {
           Upload File
           <input
             type="file"
-            accept=".bin,.csv"
+            accept=".bin"
             onChange={handleFileChange}
             className="hidden"
           />
