@@ -413,6 +413,73 @@ export class cpu {
         this.handleSyscall(syscallCode);
         break;
       }
+      // case "BEQ":{// if equal
+     //const rd = binaryToDecimal(instruction[1], true);
+     //const rs = binaryToDecimal(instruction[2], true);
+     //const imm = binaryToDecimal(instruction[3], true);
+     // if rd == rs {
+     //   this.setPC(this.getPC() + imm / 2); // Jump to the address specified by imm}
+     // return;
+    //}
+    //   case "BNE": { if not equal
+    //   cosnt rd = binaryToDecimal(instruction[1], true);
+    //   const rs = binaryToDecimal(instruction[2], true);
+    //   const imm = binaryToDecimal(instruction[3], true);
+    //   if rd != rs {
+    //     this.setPC(this.getPC() + imm / 2); // Jump to the address specified by imm
+    //   }
+    //   return;
+    // }
+      //case "BZ":{ // if equal to 0
+      //const rd = binaryToDecimal(instruction[1], true);
+      //if rd == 0 {
+      //  this.setPC(this.getPC() + imm / 2); // Jump to the address specified by imm
+      //}
+      //  return;
+      //}
+      //case "BNZ":{ // if not equal to 0
+      //const rd = binaryToDecimal(instruction[1], true);
+      //if rd != 0 {
+      //  this.setPC(this.getPC() + imm / 2); // Jump to the address specified by imm
+      //}
+      //  return;
+      //}
+      //case "BLT": { // if rs < rd go to label
+      //const rd = binaryToDecimal(instruction[1], true);
+      //const rs = binaryToDecimal(instruction[2], true);
+      //const imm = binaryToDecimal(instruction[3], true);
+      //if rd < rs {
+      //  this.setPC(this.getPC() + imm / 2); // Jump to the address specified by imm
+      //} 
+      //  return;
+      //}
+      // case "BGE": { // if rs >= rd go to label
+      // const rd = binaryToDecimal(instruction[1], true);  
+      // const rs = binaryToDecimal(instruction[2], true);
+      // const imm = binaryToDecimal(instruction[3], true); 
+      // if rd >= rs {
+      //   this.setPC(this.getPC() + imm / 2); // Jump to the address specified by imm
+      // }
+      // return;  
+      //}
+      // case "BLTU": { // if rs < rd unsigned go to label
+      // const rd = binaryToDecimal(instruction[1], false); 
+      // const rs = binaryToDecimal(instruction[2], false);
+      // const imm = binaryToDecimal(instruction[3], false);
+      // if rd < rs {
+      //   this.setPC(this.getPC() + imm / 2); // Jump to the address specified by imm
+      // }   
+      // return;
+      //}
+      // case "BGEU": { // if rs >= rd unsigned go to label
+      // const rd = binaryToDecimal(instruction[1], false);
+      // const rs = binaryToDecimal(instruction[2], false);
+      // const imm = binaryToDecimal(instruction[3], false);
+      // if rd >= rs {
+      //   this.setPC(this.getPC() + imm / 2); // Jump to the address specified by imm
+      // }
+      // return;
+      //}
       default:
         console.error(`Unknown instruction: ${instruction}`);
     }
